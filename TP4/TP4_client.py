@@ -3,10 +3,10 @@ import email
 import email.message
 import getpass
 import json
+import os
 import re
 import socket
 from typing import NoReturn
-
 import glosocket
 import TP4_utils
 
@@ -29,7 +29,6 @@ class Client:
         self._logged_in = False
         self._username = ""
 
-        # TODO
         try:
             socket_client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             socket_client.connect((destination, TP4_utils.SOCKET_PORT))
@@ -50,7 +49,7 @@ class Client:
         # TODO
         message = glosocket.recv_msg(self._socket)
         if message is None :
-            print("error in _recv_data()")
+            print("error in _recv_data() : message is None")
             exit()
         return TP4_utils.GLO_message(json.loads(message))
 
@@ -65,7 +64,7 @@ class Client:
         - Transmet la requête au serveur
         - Traite la réponse du serveur
         """
-        # TODO
+
         choice = input(TP4_utils.CLIENT_AUTH_CHOICE)
         if choice == "1" or choice == "2" :
 
@@ -88,8 +87,8 @@ class Client:
                 "data": {"username": username, "password": password}
             })
             glosocket.send_msg(self._socket, TP4_utils.GLO_message(message))
-
             response = self._recv_data()
+
             if response.header == TP4_utils.message_header.OK :
                 self._logged_in = True
                 self._username = username
@@ -106,7 +105,6 @@ class Client:
         choix et appelle l’une des fonctions _reading, _sending ou _get_stats
         ou quitte avec un code 0.
         """
-        # TODO
         choice = input(TP4_utils.CLIENT_USE_CHOICE)
     
         if choice == "1" :
@@ -179,7 +177,7 @@ class Client:
         """
         # TODO
         courriel = email.message.EmailMessage()
-        courriel["From"] = "tp4@glo2000.ca"
+        courriel["From"] = f"{self._username}@{TP4_utils.SERVER_DOMAIN}"
         courriel["To"] = input("Entrer l'adresse courriel du destinataire : ")
         courriel["Subject"] = input("Entrer le sujet du courriel : ")
         emailContent = ""
@@ -188,7 +186,7 @@ class Client:
             txt = input("Entrer le contenu du courriel : ")
             if txt == "." :
                 break
-            emailContent += txt
+            emailContent += txt + os.linesep
         
         courriel.set_content(emailContent)
 
